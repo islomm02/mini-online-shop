@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { RoleD } from 'src/decorator/role-decorators';
-import { UserRole } from '@prisma/client';
+import { ProductXolati, UserRole } from '@prisma/client';
 import { RoleGuard } from 'src/guards/role.guard';
 import { TokenGuard } from 'src/guards/token.guard';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('product')
 export class ProductController {
@@ -21,8 +22,44 @@ export class ProductController {
 
   @UseGuards(TokenGuard)
   @Get()
-  findAll() {
-    return this.productService.findAll();
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'categoryId', required: false })
+  @ApiQuery({ name: 'colorId', required: false })
+  @ApiQuery({ name: 'xolati', required: false, enum: ProductXolati })
+  @ApiQuery({ name: 'priceFrom', required: false, type: Number })
+  @ApiQuery({ name: 'priceTo', required: false, type: Number })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['name', 'price', 'createdAt'],
+  })
+  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  findAll(
+    @Query('search') search?: string,
+    @Query('categoryId') categoryId?: string,
+    @Query('colorId') colorId?: string,
+    @Query('xolati') xolati?: ProductXolati,
+    @Query('priceFrom') priceFrom?: number,
+    @Query('priceTo') priceTo?: number,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    return this.productService.findAll({
+      search,
+      categoryId,
+      colorId,
+      xolati,
+      priceFrom,
+      priceTo,
+      sortBy,
+      sortOrder,
+      page,
+      limit,
+    });
   }
 
   @UseGuards(TokenGuard)

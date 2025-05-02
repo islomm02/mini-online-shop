@@ -5,6 +5,19 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { TokenGuard } from 'src/guards/token.guard';
 import { ViewService } from 'src/view/view.service';
 
+interface ProductFilterOptions {
+  search?: string;
+  categoryId?: string;
+  colorId?: string;
+  xolati?: string;
+  priceFrom?: number;
+  priceTo?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
+
 @Injectable()
 export class ProductService {
   constructor(
@@ -26,14 +39,61 @@ export class ProductService {
     }
   }
 
-  async findAll() {
-    try {
-      const data = await this.prisma.product.findMany();
-      return data;
-    } catch (error) {
-      return { message: error.message };
-    }
+  
+
+async findAll(options: ProductFilterOptions) {
+  const {
+    search,
+    categoryId,
+    colorId,
+    xolati,
+    priceFrom,
+    priceTo,
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
+    page = 1,
+    limit = 10,
+  } = options;
+
+  const where: any = {};
+
+  if (search) {
+    where.name = { contains: search, mode: 'insensitive' };
   }
+  if (categoryId) where.categoryId = categoryId;
+  if (colorId) where.colorId = colorId;
+  if (xolati) where.xolati = xolati;
+  if (priceFrom || priceTo) {
+    where.price = {};
+    if (priceFrom) where.price.gte = priceFrom;
+    if (priceTo) where.price.lte = priceTo;
+  }
+
+  const skip = (page - 1) * limit;
+
+  try {
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.product.findMany({
+        where,
+        orderBy: { [sortBy]: sortOrder },
+        skip,
+        take: limit,
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  } catch (error) {
+    return { message: error.message };
+  }
+}
+
 
   async myProducts(ownerId: string) {
     try {
