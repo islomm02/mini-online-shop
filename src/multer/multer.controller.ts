@@ -35,8 +35,6 @@ export class MulterController {
   @UseInterceptors(FileInterceptor('file', multerOptions))
   uploadFile(@UploadedFile() file: Express.Multer.File) {
     return {
-      message: 'Fayl muvaffaqiyatli yuklandi!',
-      filename: file.filename,
       url: `http://localhost:3000/uploads/${file.filename}`,
     };
   }
