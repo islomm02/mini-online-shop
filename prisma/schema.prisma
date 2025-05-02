@@ -89,6 +89,7 @@ model Product{
   likes Likes[]
   views Views[]
   orders Orders[]
+  createdAt DateTime @default(now())
 
 }
 

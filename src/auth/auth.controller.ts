@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterAuthDto, LoginAuthDto, SendOtpDto, VerifyOtpDto, MeDto } from './dto/create-auth.dto';
+import { RegisterAuthDto, LoginAuthDto, SendOtpDto, VerifyOtpDto } from './dto/create-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { TokenGuard } from 'src/guards/token.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService, 
@@ -30,8 +31,9 @@ export class AuthController {
     return this.authService.verifyOtp(data);
   }
 
+  @UseGuards(TokenGuard)
   @Post("me")
-  me(@Body() data: MeDto) {
-    return this.authService.me(data)
+  me( @Request() req) {
+    return this.authService.me( req.user)
   }
 }

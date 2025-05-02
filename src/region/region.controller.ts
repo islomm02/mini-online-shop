@@ -20,9 +20,9 @@ import { RoleGuard } from 'src/guards/role.guard';
 export class RegionController {
   constructor(private readonly regionService: RegionService) {}
 
-  @RoleD(UserRole.ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(TokenGuard)
+  // @RoleD(UserRole.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(TokenGuard)
   @Post()
   create(@Body() createRegionDto: CreateRegionDto) {
     return this.regionService.create(createRegionDto);

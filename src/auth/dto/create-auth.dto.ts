@@ -62,8 +62,3 @@ export class VerifyOtpDto {
   otp: string;
 }
 
-export class MeDto {
-  @ApiProperty()
-  @IsEmail()
-  email: string;
-}

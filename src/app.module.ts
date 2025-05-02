@@ -14,9 +14,10 @@ import { ViewModule } from './view/view.module';
 import { CommentsModule } from './comments/comments.module';
 import { ChatModule } from './chat/chat.module';
 import { OrderModule } from './order/order.module';
+import { MulterModule } from './multer/multer.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, RegionModule, ProductModule, ColorModule, CategoryModule, TypeModule, LikeModule, ViewModule, CommentsModule, ChatModule, OrderModule],
+  imports: [AuthModule, PrismaModule, RegionModule, ProductModule, ColorModule, CategoryModule, TypeModule, LikeModule, ViewModule, CommentsModule, ChatModule, OrderModule, MulterModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

@@ -7,8 +7,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class CommentsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: CreateCommentDto) {
-    const comment = await this.prisma.comments.create({ data });
+  async create(data: CreateCommentDto, user) {
+    const comment = await this.prisma.comments.create({ data : {...data, userId: user.id}});
 
     const productCommentsCount = await this.prisma.comments.count({
       where: { productId: data.productId },

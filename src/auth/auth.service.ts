@@ -4,7 +4,6 @@ import {
   LoginAuthDto,
   SendOtpDto,
   VerifyOtpDto,
-  MeDto,
 } from './dto/create-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -32,6 +31,11 @@ export class AuthService {
     const user = await this.findUser(data.email);
     if (user) {
       throw new BadRequestException('User already exists');
+    }
+    let asd = await this.prisma.user.findFirst({ where: { phone: data.phone } })
+    if (asd) {
+      throw new BadRequestException('User with this phone already exists');
+      
     }
     const hash = bcrypt.hashSync(data.password, 10);
     const newUser = await this.prisma.user.create({
@@ -79,7 +83,7 @@ export class AuthService {
     return {message: `Your account has been verified succesfully`}
   }
 
-  async me(data: MeDto) {
-    return await this.prisma.user.findFirst({where: {email: data.email}})
+  async me(user) {
+    return await this.prisma.user.findFirst({where: {id: user.id}, include: {region: true}})
   }
 }

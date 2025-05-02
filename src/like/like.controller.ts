@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { LikeService } from './like.service';
 import { CreateLikeDto, LikeIdDto } from './dto/create-like.dto';
 import { UpdateLikeDto } from './dto/update-like.dto';
@@ -10,8 +10,8 @@ export class LikeController {
 
   @UseGuards(TokenGuard)
   @Post()
-  create(@Body() createLikeDto: CreateLikeDto) {
-    return this.likeService.create(createLikeDto);
+  create(@Body() createLikeDto: CreateLikeDto, @Request() req) {
+    return this.likeService.create(createLikeDto, req.user);
   }
 
   @UseGuards(TokenGuard)

@@ -8,9 +8,9 @@ import { ProductService } from 'src/product/product.service';
 export class LikeService {
   constructor(private prisma: PrismaService, private product: ProductService) {}
 
-  async create(data: CreateLikeDto) {
+  async create(data: CreateLikeDto, user) {
     try {
-      let like = await this.prisma.likes.create({ data });
+      let like = await this.prisma.likes.create({ data : {...data, userId: user.id}});
 
       let lll = await this.prisma.product.findFirst({ where: { id: data.productId } })
       let newCount = lll?.like ? lll.like + 1 : 1;

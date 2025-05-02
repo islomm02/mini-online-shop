@@ -78,16 +78,22 @@ async findAll(options: ProductFilterOptions) {
         orderBy: { [sortBy]: sortOrder },
         skip,
         take: limit,
+        include: {
+          owner: true,
+          category: true,
+          color: true,
+          type: true
+        }
       }),
       this.prisma.product.count({ where }),
     ]);
 
     return {
-      data,
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
+      data  
     };
   } catch (error) {
     return { message: error.message };
