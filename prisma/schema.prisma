@@ -84,6 +84,7 @@ model Product{
   discount Int
   image String?
   like Int?
+  star Int?
   comments Comments[]
   likes Likes[]
   views Views[]

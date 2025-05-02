@@ -26,7 +26,7 @@ export class ProductController {
   }
 
   @UseGuards(TokenGuard)
-  @Get("my-products")
+  @Get('my-products')
   myProducts(@Request() req) {
     let user = req.user;
     return this.productService.myProducts(user.id);
@@ -39,12 +39,16 @@ export class ProductController {
     return this.productService.findOne(id, user);
   }
 
+  @RoleD(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @UseGuards(RoleGuard)
   @UseGuards(TokenGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.update(id, updateProductDto);
   }
 
+  @RoleD(UserRole.ADMIN)
+  @UseGuards(RoleGuard)
   @UseGuards(TokenGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

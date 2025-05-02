@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateViewDto } from './dto/create-view.dto';
-import { UpdateViewDto } from './dto/update-view.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { subDays } from 'date-fns';
 
