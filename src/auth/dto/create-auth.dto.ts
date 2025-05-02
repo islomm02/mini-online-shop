@@ -19,7 +19,6 @@ export class RegisterAuthDto {
   phone: string;
   @ApiProperty()
   password: string;
-  @ApiProperty({ enum: UserRole })
   role: UserRole;
   @ApiProperty()
   image?: string;

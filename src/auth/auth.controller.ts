@@ -25,6 +25,11 @@ export class AuthController {
   sendOtp(@Body() data: SendOtpDto) {
     return this.authService.sendOtp(data);
   }
+
+  @Post('promote-to-admin')
+  promoteToAdmin(@Body() data: {userId: string}) {
+    return this.authService.promoteAdmin(data);
+  }
   
   @Post('verify-otp')
   verifyOtp(@Body() data: VerifyOtpDto) {

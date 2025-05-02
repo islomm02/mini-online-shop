@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from 'src/mailer/mailer.service';
 import { totp } from 'otplib';
+import { UserRole } from '@prisma/client';
 
 totp.options = {
   step: 90, 
@@ -18,11 +19,11 @@ totp.options = {
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService,
+  constructor(
+    private prisma: PrismaService,
     private jwt: JwtService,
-    private mailer: MailerService
+    private mailer: MailerService,
   ) {}
-
 
   async findUser(email: string) {
     return await this.prisma.user.findFirst({ where: { email } });
@@ -32,14 +33,15 @@ export class AuthService {
     if (user) {
       throw new BadRequestException('User already exists');
     }
-    let asd = await this.prisma.user.findFirst({ where: { phone: data.phone } })
+    let asd = await this.prisma.user.findFirst({
+      where: { phone: data.phone },
+    });
     if (asd) {
       throw new BadRequestException('User with this phone already exists');
-      
     }
     const hash = bcrypt.hashSync(data.password, 10);
     const newUser = await this.prisma.user.create({
-      data: { ...data, password: hash }
+      data: { ...data, password: hash },
     });
     return newUser;
   }
@@ -49,41 +51,55 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    let match = bcrypt.compareSync(data.password,user.password)
+    let match = bcrypt.compareSync(data.password, user.password);
     if (!match) {
-      throw new BadRequestException("Invalid password")
+      throw new BadRequestException('Invalid password');
     }
-    if (user.status == "INACTIVE") {
-      throw new BadRequestException("You should verify your accaunt before you login.")
+    if (user.status == 'INACTIVE') {
+      throw new BadRequestException(
+        'You should verify your accaunt before you login.',
+      );
     }
 
-    return {accessToken: this.jwt.sign({user})}
+    return { accessToken: this.jwt.sign({ user }) };
   }
 
   async sendOtp(data: SendOtpDto) {
-    await this.mailer.sendEmail(data.email, "Verify account", totp.generate(data.email))
-    return `We sent verification code to your email.`;
+    await this.mailer.sendEmail(
+      data.email,
+      'Verify account',
+      totp.generate(data.email),
+    );
+    return {message: `We sent verification code to your email.`};
+  }
+
+  async promoteAdmin(data:{userId: string}) {
+    await this.prisma.user.update({where: {id: data.userId}, data: {role: UserRole.ADMIN}})
+    return {message: "User has been promoted to admin"}
   }
 
   async verifyOtp(data: VerifyOtpDto) {
-    let user = await this.findUser(data.email)
+    let user = await this.findUser(data.email);
     if (!user) {
-      throw new NotFoundException("User not found")
+      throw new NotFoundException('User not found');
     }
-    let match = totp.check(data.otp, data.email)
+    let match = totp.check(data.otp, data.email);
     console.log(match);
-    
+
     if (!match) {
-      throw new BadRequestException("Invalid otp")
+      throw new BadRequestException('Invalid otp');
     }
     await this.prisma.user.update({
       where: { email: data.email },
-      data: { status: "ACTIVE" }
-    })
-    return {message: `Your account has been verified succesfully`}
+      data: { status: 'ACTIVE' },
+    });
+    return { message: `Your account has been verified succesfully` };
   }
 
   async me(user) {
-    return await this.prisma.user.findFirst({where: {id: user.id}, include: {region: true}})
+    return await this.prisma.user.findFirst({
+      where: { id: user.id },
+      include: { region: true },
+    });
   }
 }
