@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto, CreateMessageDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { TokenGuard } from 'src/guards/token.guard';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('chat')
 export class ChatController {
@@ -27,9 +28,15 @@ export class ChatController {
   }
 
   @UseGuards(TokenGuard)
+  @ApiQuery({
+    name: "chatId",
+    required: true
+    })
   @Get('messages')
-  findaAllMessages() {
-    return this.chatService.findAllMessages();
+  findaAllMessages(
+    @Query("chatId") chatId: string
+  ) {
+    return this.chatService.findAllMessages(chatId);
   }
 
   @UseGuards(TokenGuard)

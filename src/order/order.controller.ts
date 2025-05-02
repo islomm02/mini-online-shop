@@ -29,7 +29,7 @@ export class OrderController {
     return this.orderService.findAll();
   }
   @UseGuards(TokenGuard)
-  @Get()
+  @Get("my-orders")
   findMyOrders(@Request() req) {
     return this.orderService.findMyOrders(req.user);
   }

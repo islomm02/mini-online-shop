@@ -21,9 +21,9 @@ export class LikeController {
   }
 
   @UseGuards(TokenGuard)
-  @Get()
-  mys(@Body() data: LikeIdDto) {
-    return this.likeService.liked(data);
+  @Get('liked')
+  mys(@Request() req) {
+    return this.likeService.liked(req.user);
   }
 
   @UseGuards(TokenGuard)

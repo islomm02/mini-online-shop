@@ -5,22 +5,62 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class CategoryService {
-  constructor(private prisma: PrismaService){}
+  constructor(private prisma: PrismaService) {}
   async create(data: CreateCategoryDto) {
     try {
       const ctg = await this.prisma.category.create({ data });
       return ctg;
     } catch (error) {
-      return {message: error.message}
+      return { message: error.message };
     }
   }
 
-  async findAll() {
+  async findAll(params: {
+    search?: string;
+    sort?: 'asc' | 'desc';
+    page: number;
+    limit: number;
+  }) {
     try {
-      const ctgs = await this.prisma.category.findMany();
-      return ctgs;
+      const { search, sort, page, limit } = params;
+      const skip = (page - 1) * limit;
+
+      const [data, total] = await this.prisma.$transaction([
+        this.prisma.category.findMany({
+          where: search
+            ? {
+                name: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              }
+            : {},
+          orderBy: {
+            name: sort,
+          },
+          skip,
+          take: limit,
+        }),
+        this.prisma.category.count({
+          where: search
+            ? {
+                name: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              }
+            : {},
+        }),
+      ]);
+
+      return {
+        total,
+        page,
+        limit,
+        data,
+      };
     } catch (error) {
-      return {message: error.message}
+      return { message: error.message };
     }
   }
 

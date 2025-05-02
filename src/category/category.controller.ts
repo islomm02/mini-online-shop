@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -21,8 +21,18 @@ export class CategoryController {
 
   @UseGuards(TokenGuard)
   @Get()
-  findAll() {
-    return this.categoryService.findAll();
+  findAll(
+    @Query('search') search?: string,
+    @Query('sort') sort: 'asc' | 'desc' = 'asc',
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+  ) {
+    return this.categoryService.findAll({
+      search,
+      sort,
+      page: parseInt(page),
+      limit: parseInt(limit),
+    });
   }
 
   @RoleD(UserRole.ADMIN, UserRole.SUPER_ADMIN)

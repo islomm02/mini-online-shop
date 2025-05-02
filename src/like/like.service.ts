@@ -31,9 +31,9 @@ export class LikeService {
     }
   }
 
-  async liked(data: LikeIdDto) {
+  async liked(user) {
     let myLiked = await this.prisma.likes.findMany({
-      where: { userId: data.userId },
+      where: { userId: user.userId },
     });
     if (!myLiked) {
       throw new NotFoundException('You has not liked any product yet');

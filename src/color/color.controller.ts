@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ColorService } from './color.service';
 import { CreateColorDto } from './dto/create-color.dto';
 import { UpdateColorDto } from './dto/update-color.dto';
@@ -21,8 +21,20 @@ export class ColorController {
 
   @UseGuards(TokenGuard)
   @Get()
-  findAll() {
-    return this.colorService.findAll();
+  findAll(
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy: string = 'name',
+    @Query('sort') sort: 'asc' | 'desc' = 'asc',
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+  ) {
+    return this.colorService.findAll({
+      search,
+      sortBy,
+      sort,
+      page: parseInt(page),
+      limit: parseInt(limit),
+    });
   }
 
   @UseGuards(TokenGuard)
